@@ -16,13 +16,15 @@ function generateDifferentNumber(currentNumber, random = Math.random) {
   return currentNumber === 100 ? 99 : currentNumber + 1;
 }
 
-function createInitialState(random = Math.random) {
+function createInitialState(random = Math.random, highScore = 0) {
   return {
     currentNumber: generateNumber(random),
     score: 0,
+    highScore,
     lives: STARTING_LIVES,
     status: "playing",
-    feedback: "Will the next number be higher or lower?"
+    feedback: "Will the next number be higher or lower?",
+    feedbackType: "neutral"
   };
 }
 
@@ -38,26 +40,31 @@ function applyGuess(state, guess, random = Math.random) {
     ? nextNumber > previousNumber
     : nextNumber < previousNumber;
   const score = state.score + (isCorrect ? 1 : 0);
+  const highScore = Math.max(state.highScore, score);
   const lives = state.lives - (isCorrect ? 0 : 1);
-  const result = isCorrect ? "Correct!" : "Incorrect!";
+  const result = isCorrect ? "✓ Correct!" : "✕ Incorrect!";
   const comparison = nextNumber > previousNumber ? "higher" : "lower";
 
   if (lives === 0) {
     return {
       currentNumber: nextNumber,
       score,
+      highScore,
       lives,
       status: "game-over",
-      feedback: `${result} ${nextNumber} is ${comparison} than ${previousNumber}. Game over! Final score: ${score}.`
+      feedback: `${result} ${nextNumber} is ${comparison} than ${previousNumber}.`,
+      feedbackType: isCorrect ? "correct" : "incorrect"
     };
   }
 
   return {
     currentNumber: nextNumber,
     score,
+    highScore,
     lives,
     status: "playing",
-    feedback: `${result} ${nextNumber} is ${comparison} than ${previousNumber}. Guess again!`
+    feedback: `${result} ${nextNumber} is ${comparison} than ${previousNumber}.`,
+    feedbackType: isCorrect ? "correct" : "incorrect"
   };
 }
 

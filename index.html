@@ -17,23 +17,31 @@
 
       <section class="game-card" aria-label="Higher or Lower game">
         <div class="scoreboard" aria-label="Game status">
-          <p>Score: <strong id="score">0</strong></p>
-          <p>Lives: <strong id="lives">3</strong></p>
+          <p><span>Score</span><strong id="score">0</strong></p>
+          <p><span>High Score</span><strong id="high-score">0</strong></p>
+          <p><span>Lives</span><strong id="lives">3</strong></p>
         </div>
 
         <div class="number-display">
           <p>Current Number</p>
           <strong id="current-number"></strong>
+          <small>Numbers range from 1 to 100</small>
         </div>
 
         <div id="actions" class="actions" aria-label="Make your guess">
-          <button class="guess-button" type="button" data-guess="higher">Higher</button>
-          <button class="guess-button" type="button" data-guess="lower">Lower</button>
+          <button class="guess-button guess-button--higher" type="button" data-guess="higher">↑ Higher</button>
+          <button class="guess-button guess-button--lower" type="button" data-guess="lower">↓ Lower</button>
         </div>
 
         <p id="feedback" class="feedback" aria-live="polite">
           Will the next number be higher or lower?
         </p>
+
+        <section id="game-over" class="game-over" aria-labelledby="game-over-heading" hidden>
+          <h2 id="game-over-heading">GAME OVER</h2>
+          <p>Final Score: <strong id="final-score">0</strong></p>
+          <p>High Score: <strong id="final-high-score">0</strong></p>
+        </section>
 
         <button id="restart" class="restart-button" type="button">Restart Game</button>
       </section>
