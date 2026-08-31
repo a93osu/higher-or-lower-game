@@ -21,9 +21,11 @@ test("initial state starts a playable game", () => {
   assert.deepEqual(state, {
     currentNumber: 50,
     score: 0,
+    highScore: 0,
     lives: STARTING_LIVES,
     status: "playing",
-    feedback: "Will the next number be higher or lower?"
+    feedback: "Will the next number be higher or lower?",
+    feedbackType: "neutral"
   });
 });
 
@@ -48,7 +50,8 @@ test("a correct higher guess increases the score", () => {
   assert.equal(next.currentNumber, 76);
   assert.equal(next.score, 1);
   assert.equal(next.lives, 3);
-  assert.match(next.feedback, /^Correct!/);
+  assert.equal(next.feedback, "✓ Correct! 76 is higher than 50.");
+  assert.equal(next.feedbackType, "correct");
   assert.equal(start.score, 0);
 });
 
@@ -57,6 +60,7 @@ test("a correct lower guess increases the score", () => {
   const next = applyGuess(start, "lower", () => 0.1);
   assert.equal(next.currentNumber, 11);
   assert.equal(next.score, 1);
+  assert.equal(next.highScore, 1);
   assert.equal(next.lives, 3);
 });
 
@@ -65,7 +69,8 @@ test("an incorrect guess removes one life", () => {
   const next = applyGuess(start, "higher", () => 0.1);
   assert.equal(next.score, 0);
   assert.equal(next.lives, 2);
-  assert.match(next.feedback, /^Incorrect!/);
+  assert.equal(next.feedback, "✕ Incorrect! 11 is lower than 50.");
+  assert.equal(next.feedbackType, "incorrect");
 });
 
 test("a lower guess fails when the next number is higher", () => {
@@ -74,7 +79,7 @@ test("a lower guess fails when the next number is higher", () => {
   assert.equal(next.currentNumber, 76);
   assert.equal(next.score, 0);
   assert.equal(next.lives, 2);
-  assert.match(next.feedback, /^Incorrect!/);
+  assert.equal(next.feedback, "✕ Incorrect! 76 is higher than 50.");
 });
 
 test("multiple rounds use each generated number as the next comparison point", () => {
@@ -90,27 +95,42 @@ test("multiple rounds use each generated number as the next comparison point", (
   assert.equal(state.lives, 2);
 });
 
+test("high score updates immediately and never decreases", () => {
+  let state = { ...createInitialState(() => 0.49), currentNumber: 50 };
+  state = applyGuess(state, "higher", () => 0.75);
+  assert.equal(state.score, 1);
+  assert.equal(state.highScore, 1);
+
+  state = applyGuess(state, "higher", () => 0.1);
+  assert.equal(state.score, 1);
+  assert.equal(state.highScore, 1);
+});
+
 test("losing the last life ends the game and reports the final score", () => {
   const start = {
     ...createInitialState(() => 0.49),
     currentNumber: 50,
     score: 4,
+    highScore: 7,
     lives: 1
   };
   const ended = applyGuess(start, "higher", () => 0.1);
   assert.equal(ended.status, "game-over");
   assert.equal(ended.lives, 0);
-  assert.match(ended.feedback, /Final score: 4/);
+  assert.equal(ended.score, 4);
+  assert.equal(ended.highScore, 7);
   assert.strictEqual(applyGuess(ended, "lower", () => 0.9), ended);
 });
 
-test("a new initial state fully resets game values", () => {
-  const reset = createInitialState(() => 0.24);
+test("a new initial state resets the game while preserving high score", () => {
+  const reset = createInitialState(() => 0.24, 6);
   assert.equal(reset.currentNumber, 25);
   assert.equal(reset.score, 0);
+  assert.equal(reset.highScore, 6);
   assert.equal(reset.lives, 3);
   assert.equal(reset.status, "playing");
   assert.equal(reset.feedback, "Will the next number be higher or lower?");
+  assert.equal(reset.feedbackType, "neutral");
 });
 
 test("unknown guesses fail loudly", () => {
