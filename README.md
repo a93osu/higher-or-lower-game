@@ -1,42 +1,34 @@
-# BUSFIN 4215 Browser-Game Starter
+# Higher or Lower
 
-This is a deliberately small, deployable starting point for the individual **Ship a Game**
-assignment. It demonstrates files, state, actions, feedback, endings, restart, testing, and
-GitHub Pages. It is not a finished submission. Replace the premise, specification, rules,
-writing, and visual identity.
+Higher or Lower is a browser game created for the BUSFIN 4215 Ship a Game assignment.
 
-## Start
+## How to Play
 
-1. Use this repository as a template or copy it into a new repository.
-2. Open the folder in VS Code and complete `SPEC.md` before asking an agent to edit code.
-3. Run a local server:
+The game starts by showing a random number between 1 and 100.
 
-   ```bash
-   npm run serve
-   ```
+Choose **Higher** or **Lower** to predict whether the next number will be higher or lower than the current number.
 
-4. Open <http://localhost:8000>.
-5. Run the automated state tests:
+- Correct guess: Score increases by 1.
+- Incorrect guess: Lose 1 life.
+- You start with 3 lives.
+- The game ends when you reach 0 lives.
+- High Score keeps track of your best score during the current page session.
+- Restart Game starts a new game while keeping your High Score.
 
-   ```bash
-   npm test
-   ```
+## Play the Game
 
-## Ship
+https://a93osu.github.io/higher-or-lower-game/
 
-Push to the `main` branch. The included GitHub Actions workflow deploys the repository to
-GitHub Pages. In the repository's **Settings → Pages**, choose **GitHub Actions** as the
-source if it is not already selected. After the workflow succeeds, open the deployment in
-a private browser window and play one complete loop.
+## Project Files
 
-## Required evidence
+- `SPEC.md` — game specification and definition of done
+- `USER_TEST.md` — silent user test and revision
+- `BUILD_LOG.md` — AI/build process, testing, and human verification
+- `index.html` — page structure
+- `styles.css` — game styling
+- `app.js` and `game.js` — game behavior and logic
+- `test/game.test.js` — automated tests
 
-- public URL that works while signed out;
-- repository URL;
-- concise `BUILD_LOG.md`;
-- completed `USER_TEST.md` describing an unfamiliar user's observed friction;
-- at least one verified revision; and
-- ability to explain every consequential rule and design choice.
+## Built With
 
-Submitting the unchanged starter, fabricated user evidence, or code you cannot explain is
-not acceptable.
+Vanilla HTML, CSS, and JavaScript. The game is deployed using GitHub Pages.
