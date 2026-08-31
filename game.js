@@ -1,43 +1,71 @@
-export const ACTIONS = Object.freeze({
-  build: Object.freeze({ cash: -3, traction: 3, message: "You shipped a useful product improvement." }),
-  sell: Object.freeze({ cash: 1, traction: 1, message: "A customer conversation produced a small sale." }),
-  raise: Object.freeze({ cash: 5, traction: 0, message: "New financing bought time, but no customer proof." })
-});
+(() => {
+const STARTING_LIVES = 3;
 
-export function createInitialState() {
+function generateNumber(random = Math.random) {
+  return Math.floor(random() * 100) + 1;
+}
+
+function generateDifferentNumber(currentNumber, random = Math.random) {
+  const MAX_ATTEMPTS = 100;
+
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt += 1) {
+    const candidate = generateNumber(random);
+    if (candidate !== currentNumber) return candidate;
+  }
+
+  return currentNumber === 100 ? 99 : currentNumber + 1;
+}
+
+function createInitialState(random = Math.random) {
   return {
-    turn: 0,
-    cash: 12,
-    traction: 0,
+    currentNumber: generateNumber(random),
+    score: 0,
+    lives: STARTING_LIVES,
     status: "playing",
-    feedback: "You have six turns. Reach eight traction before cash reaches zero.",
-    history: []
+    feedback: "Will the next number be higher or lower?"
   };
 }
 
-export function applyAction(state, actionName) {
+function applyGuess(state, guess, random = Math.random) {
   if (state.status !== "playing") return state;
+  if (guess !== "higher" && guess !== "lower") {
+    throw new Error(`Unknown guess: ${guess}`);
+  }
 
-  const action = ACTIONS[actionName];
-  if (!action) throw new Error(`Unknown action: ${actionName}`);
+  const previousNumber = state.currentNumber;
+  const nextNumber = generateDifferentNumber(previousNumber, random);
+  const isCorrect = guess === "higher"
+    ? nextNumber > previousNumber
+    : nextNumber < previousNumber;
+  const score = state.score + (isCorrect ? 1 : 0);
+  const lives = state.lives - (isCorrect ? 0 : 1);
+  const result = isCorrect ? "Correct!" : "Incorrect!";
+  const comparison = nextNumber > previousNumber ? "higher" : "lower";
 
-  const next = {
-    ...state,
-    turn: state.turn + 1,
-    cash: state.cash + action.cash,
-    traction: state.traction + action.traction,
-    feedback: action.message,
-    history: [...state.history, action.message]
+  if (lives === 0) {
+    return {
+      currentNumber: nextNumber,
+      score,
+      lives,
+      status: "game-over",
+      feedback: `${result} ${nextNumber} is ${comparison} than ${previousNumber}. Game over! Final score: ${score}.`
+    };
+  }
+
+  return {
+    currentNumber: nextNumber,
+    score,
+    lives,
+    status: "playing",
+    feedback: `${result} ${nextNumber} is ${comparison} than ${previousNumber}. Guess again!`
   };
-
-  if (next.cash <= 0) {
-    return { ...next, cash: 0, status: "failed", feedback: "Cash reached zero. The venture stopped." };
-  }
-  if (next.traction >= 8) {
-    return { ...next, status: "won", feedback: "You reached product–market fit before running out of cash." };
-  }
-  if (next.turn >= 6) {
-    return { ...next, status: "ended", feedback: "Time expired before the venture reached product–market fit." };
-  }
-  return next;
 }
+
+globalThis.HigherLowerGame = Object.freeze({
+  STARTING_LIVES,
+  generateNumber,
+  generateDifferentNumber,
+  createInitialState,
+  applyGuess
+});
+})();
